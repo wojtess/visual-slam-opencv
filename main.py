@@ -44,6 +44,7 @@ def main(use_cameras=True, left_images_dir='left', right_images_dir='right'):
     # Create trackbar for disparity adjustment
     cv2.namedWindow('Disparity')
     cv2.createTrackbar('Num Disparities', 'Disparity', 16, 256, nothing)
+    cv2.createTrackbar('Min Disparity', 'Disparity', 0, 32, nothing)  # New trackbar for minDisparity
 
     while True:
         if use_cameras:
@@ -70,9 +71,13 @@ def main(use_cameras=True, left_images_dir='left', right_images_dir='right'):
         gray_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
         gray_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
         
+        # Get trackbar positions
+        num_disparities = cv2.getTrackbarPos('Num Disparities', 'Disparity') * 16
+        min_disparity = cv2.getTrackbarPos('Min Disparity', 'Disparity') - 16  # Adjust range to -16 to 16
+        
         # Stereo matching
-        num_disparities = cv2.getTrackbarPos('Num Disparities', 'Disparity')
-        stereo = cv2.StereoBM_create(numDisparities=num_disparities*16, blockSize=15)
+        stereo = cv2.StereoBM_create(numDisparities=num_disparities, blockSize=15)
+        stereo.setMinDisparity(min_disparity)
         disparity = stereo.compute(gray_left, gray_right)
         
         # Normalize the disparity map for visualization
