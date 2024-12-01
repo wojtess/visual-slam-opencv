@@ -82,7 +82,7 @@ def main(use_cameras=True, left_images_dir='left', right_images_dir='right'):
         cv2.imshow('Disparity Map', disparity)
         
         # Exit on key press
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv2.waitKey(40) & 0xFF == ord('q'):
             break
 
     # Release resources
