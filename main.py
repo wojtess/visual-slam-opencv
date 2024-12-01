@@ -46,6 +46,12 @@ def main(use_cameras=True, left_images_dir='left', right_images_dir='right'):
     cv2.createTrackbar('Num Disparities', 'Disparity', 16, 256, nothing)
     cv2.createTrackbar('Min Disparity', 'Disparity', 0, 32, nothing)  # New trackbar for minDisparity
 
+    # Initialize stereo object outside the loop
+    num_disparities = cv2.getTrackbarPos('Num Disparities', 'Disparity') * 16
+    min_disparity = cv2.getTrackbarPos('Min Disparity', 'Disparity') - 16  # Adjust range to -16 to 16
+    stereo = cv2.StereoBM_create(numDisparities=num_disparities, blockSize=15)
+    stereo.setMinDisparity(min_disparity)
+
     # Create WLS filter
     wls_filter = cv2.ximgproc.createDisparityWLSFilter(stereo)
 
@@ -80,9 +86,11 @@ def main(use_cameras=True, left_images_dir='left', right_images_dir='right'):
         num_disparities = cv2.getTrackbarPos('Num Disparities', 'Disparity') * 16
         min_disparity = cv2.getTrackbarPos('Min Disparity', 'Disparity') - 16  # Adjust range to -16 to 16
         
-        # Stereo matching
-        stereo = cv2.StereoBM_create(numDisparities=num_disparities, blockSize=15)
+        # Update stereo object with current trackbar values
+        stereo.setNumDisparities(num_disparities)
         stereo.setMinDisparity(min_disparity)
+        
+        # Stereo matching
         disparity = stereo.compute(gray_left, gray_right)
         
         # Apply WLS filter
