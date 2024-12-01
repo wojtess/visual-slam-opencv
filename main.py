@@ -81,10 +81,19 @@ def main(use_cameras=True, left_images_dir='left', right_images_dir='right'):
         disparity = stereo.compute(gray_left, gray_right)
         
         # Normalize the disparity map for visualization
-        disparity = cv2.normalize(disparity, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+        disparity_normalized = cv2.normalize(disparity, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
         
-        # Display the disparity map
-        cv2.imshow('Disparity Map', disparity)
+        # Concatenate input images horizontally
+        image_pair = np.hstack((frame_left, frame_right))
+        
+        # Resize disparity map to match the height of the image pair
+        disparity_resized = cv2.resize(disparity_normalized, (disparity_normalized.shape[1], image_pair.shape[0]))
+        
+        # Concatenate image pair and disparity map horizontally
+        combined_output = np.hstack((image_pair, cv2.cvtColor(disparity_resized, cv2.COLOR_GRAY2BGR)))
+        
+        # Display the combined output
+        cv2.imshow('Combined Output', combined_output)
         
         # Exit on key press
         if cv2.waitKey(40) & 0xFF == ord('q'):
